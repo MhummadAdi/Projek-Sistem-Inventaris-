@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Inventaris - Borrow Master</title>
+  <style>
+    /* ===== Gaya Dasar ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f4f6f9;
+      color: #333333;
+      line-height: 1.6;
+    }
+
+    .app-container { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background-color: #1e293b;
+      color: #f3f2f2;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-logo { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; }
+
+    .header-right { display: flex; align-items: center; gap: 15px; }
+
+    .btn-logout {
+      background-color: #ffffff;
+      color: #1e293b;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .btn-logout:hover { background-color: #e2e8f0; }
+
+    aside { background-color: #1e293b; color: #94a3b8; padding: 15px 20px; }
+    aside h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      color: #64748b;
+    }
+
+    nav ul { list-style-type: none; display: flex; flex-direction: column; gap: 5px; }
+    nav li a {
+      color: #cbd5e1;
+      text-decoration: none;
+      padding: 10px 12px;
+      display: block;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    nav li a:hover, nav li a.active { background-color: #2563eb; color: #ffffff; font-weight: bold; }
+
+    main { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+
+    .page-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .page-header h1 { font-size: 22px; color: #0f172a; }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary { background-color: #2563eb; color: white; }
+    .btn-danger { background-color: #ef4444; color: white; }
+    .btn-light { background-color: #e2e8f0; color: #1e293b; }
+    .btn-sm { padding: 5px 10px; font-size: 13px; }
+    .btn:hover { opacity: 0.9; }
+
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Toolbar Filter & Cari */
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+    .toolbar input, .toolbar select {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .toolbar input { flex: 1; min-width: 180px; }
+
+    /* Tabel & Badges */
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+    th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    th { background-color: #f8fafc; color: #475569; }
+    tr:hover { background-color: #f1f5f9; }
+    .aksi { display: flex; gap: 6px; }
+
+    .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .badge-available { background-color: #d1fae5; color: #059669; }
+    .badge-borrowed { background-color: #fef3c7; color: #b45309; }
+    .badge-repair { background-color: #fee2e2; color: #dc2626; }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .pages { display: flex; gap: 5px; }
+    .pages a {
+      padding: 5px 11px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #1e293b;
+      text-decoration: none;
+    }
+    .pages a.active { background-color: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+    footer {
+      background-color: #1e293b;
+      color: #94a3b8;
+      text-align: center;
+      padding: 15px;
+      font-size: 13px;
+      margin-top: auto;
+    }
+
+    /* Responsif (Desktop) */
+    @media (min-width: 768px) {
+      .app-wrapper { display: flex; flex-direction: row; min-height: calc(100vh - 60px); }
+      aside { width: 240px; flex-shrink: 0; }
+    }
+  </style>
+</head>
+<body class="app-container">
+
+  <header>
+    <div class="brand">
+      <img src="icon.png" alt="Logo Borrow Master" class="brand-logo">
+      <h2>Borrow Master</h2>
+    </div>
+    <div class="header-right">
+      <div id="live-clock" style="font-weight: bold; font-size: 14px; color: #1e293b; background: #e2e8f0; padding: 6px 12px; border-radius: 6px;">
+        00:00:00 WIB
+      </div>
+      <a href="login.html" class="btn-logout">Login</a>
+    </div>
+  </header>
+
+  <script>
+    function updateClock(){
+      const now = new Date();
+
+    <!--format jam, menit detik agar 2 dijit-->
+
+    const hours = String(now.getHours()).padStart(2,'0');
+    const minutes = String(now.getMinutes()).padStart(2,'0');
+    const seconds = String(now.getSeconds()).padStart(2,'0');
+      <!--Format jam-->
+    const timestring = `${hours}:${minutes}:${seconds}`;
+      <!--Nampilin jamnya-->
+    document.getElementById('live-clock').textContent = timestring;
+    }
+    
+    updateClock();
+
+    setInterval(updateClock, 1000);
+  </script>
+
+  <div class="app-wrapper">
+    <aside>
+      <h3>Navigasi Utama</h3>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="inventaris.html" class="active">Daftar Inventaris</a></li>
+          <li><a href="peminjaman.html">Daftar Peminjaman</a></li>
+          <li><a href="peminjaman.html">Laporan</a></li>
+          <li><a href="dashboard.html">Pengaturan</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="page-header">
+        <h1>Daftar Inventaris</h1>
+        <a href="form-barang.html" class="btn btn-primary">+ Tambah Barang</a>
+      </div>
+
+      <section class="card">
+        <form class="toolbar" onsubmit="event.preventDefault();">
+          <input type="search" placeholder="Cari nama atau kode barang..." aria-label="Cari barang">
+          <select aria-label="Filter kategori">
+            <option>Semua Kategori</option>
+            <option>Elektronik</option>
+            <option>Multimedia</option>
+            <option>Audio</option>
+          </select>
+          <select aria-label="Filter status">
+            <option>Semua Status</option>
+            <option>Tersedia</option>
+            <option>Dipinjam</option>
+            <option>Perbaikan</option>
+          </select>
+        </form>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Nama Barang</th>
+                <th>Kategori</th>
+                <th>Stok</th>
+                <th>Kondisi</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BRG-001</td>
+                <td>Proyektor Epson EB-X400</td>
+                <td>Elektronik</td>
+                <td>4</td>
+                <td>Baik</td>
+                <td><span class="badge badge-borrowed">Dipinjam</span></td>
+                <td class="aksi">
+                  <a href="form-barang.html" class="btn btn-light btn-sm">Edit</a>
+                  <a href="inventaris.html" class="btn btn-danger btn-sm">Hapus</a>
+                </td>
+              </tr>
+              <tr>
+                <td>BRG-002</td>
+                <td>Kamera Canon EOS 80D</td>
+                <td>Multimedia</td>
+                <td>2</td>
+                <td>Baik</td>
+                <td><span class="badge badge-available">Tersedia</span></td>
+                <td class="aksi">
+                  <a href="form-barang.html" class="btn btn-light btn-sm">Edit</a>
+                  <a href="inventaris.html" class="btn btn-danger btn-sm">Hapus</a>
+                </td>
+              </tr>
+              <tr>
+                <td>BRG-003</td>
+                <td>Laptop Dell XPS 13</td>
+                <td>Elektronik</td>
+                <td>6</td>
+                <td>Baik</td>
+                <td><span class="badge badge-available">Tersedia</span></td>
+                <td class="aksi">
+                  <a href="form-barang.html" class="btn btn-light btn-sm">Edit</a>
+                  <a href="inventaris.html" class="btn btn-danger btn-sm">Hapus</a>
+                </td>
+              </tr>
+              <tr>
+                <td>BRG-004</td>
+                <td>Microphone Wireless Shure</td>
+                <td>Audio</td>
+                <td>3</td>
+                <td>Rusak ringan</td>
+                <td><span class="badge badge-repair">Perbaikan</span></td>
+                <td class="aksi">
+                  <a href="form-barang.html" class="btn btn-light btn-sm">Edit</a>
+                  <a href="inventaris.html" class="btn btn-danger btn-sm">Hapus</a>
+                </td>
+              </tr>
+              <tr>
+                <td>BRG-005</td>
+                <td>Speaker Portable JBL</td>
+                <td>Audio</td>
+                <td>2</td>
+                <td>Baik</td>
+                <td><span class="badge badge-available">Tersedia</span></td>
+                <td class="aksi">
+                  <a href="form-barang.html" class="btn btn-light btn-sm">Edit</a>
+                  <a href="inventaris.html" class="btn btn-danger btn-sm">Hapus</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <span>Menampilkan 1–5 dari 24 barang</span>
+          <div class="pages">
+            <a href="inventaris.html">&laquo;</a>
+            <a href="inventaris.html" class="active">1</a>
+            <a href="inventaris.html">2</a>
+            <a href="inventaris.html">3</a>
+            <a href="inventaris.html">&raquo;</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p>2026 Dashboard Peminjaman Inventaris - Pemrograman Berbasis Web</p>
+  </footer>
+
+</body>
+</html>
